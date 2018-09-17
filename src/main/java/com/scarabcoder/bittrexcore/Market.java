@@ -18,7 +18,6 @@ public class Market {
     private final String name;
     private MarketTickList marketTicks = new MarketTickList(TickInterval.ONE_MIN);
     private BigDecimal volume;
-    private BigDecimal actualBalance = new BigDecimal("0.0");
     private BigDecimal price;
     private Bittrex bittrex;
 
@@ -69,12 +68,9 @@ public class Market {
         this.volume = volume;
     }
 
-    void updateBalance(BigDecimal balance) {
-        this.actualBalance = balance;
-    }
 
     public BigDecimal getActualBalance() {
-        return this.actualBalance == null ? new BigDecimal("0.0") : actualBalance;
+        return bittrex.getBalance(this.getCoin());
     }
 
     public BigDecimal getBalance() {

@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 public class Bittrex {
 
@@ -16,8 +17,8 @@ public class Bittrex {
     private final OrderManager orderManager = new OrderManager(this);
     private final MarketManager marketManager = new MarketManager(this);
     private double bitcoinPrice;
-    private BigDecimal bitcoinBalance = new BigDecimal("0.0");
     private List<String> baseMarkets;
+    private Map<String, BigDecimal> balances;
 
 
     public Bittrex(String key, String secret, long requestDelay, String... baseMarkets) {
@@ -73,10 +74,18 @@ public class Bittrex {
     }
 
     public BigDecimal getBitcoinBalance() {
-        return bitcoinBalance;
+        return getBalance("BTC");
     }
 
-    void updateBitcoinBalance(BigDecimal bitcoinBalance) {
-        this.bitcoinBalance = bitcoinBalance;
+    public BigDecimal getBalance(String coin) {
+        return balances.getOrDefault(coin, new BigDecimal("0.0"));
+    }
+
+    public Map<String, BigDecimal> getBalances() {
+        return balances;
+    }
+
+    void updateBalance(String coin, BigDecimal amount) {
+        balances.put(coin, amount);
     }
 }

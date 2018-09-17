@@ -112,15 +112,7 @@ public class MarketManager {
                     for(JsonElement balanceElement : balances) {
                         JsonObject obj = balanceElement.getAsJsonObject();
                         String currency = obj.get("Currency").getAsString();
-                        if(currency.equals("BTC")) {
-                            bittrex.updateBitcoinBalance(obj.get("Balance").getAsBigDecimal());
-                            continue;
-                        }
-                        Market market = bittrex.getMarketManager().getMarkets().stream().filter(m -> m.getCoin().equals(currency)).findFirst().orElse(null);
-                        if(market != null) {
-                            market.updateBalance(obj.get("Balance").getAsBigDecimal());
-                        }
-
+                        bittrex.updateBalance(currency, obj.get("Balance").getAsBigDecimal());
                     }
                     if(x > 0) {
                         Bittrex.LOGGER.info("Loaded " + markets.size() + " markets, with " + new DecimalFormat("#,###").format(markets.stream().mapToInt(market -> market.getTicks().size()).sum()) + " data points.");
