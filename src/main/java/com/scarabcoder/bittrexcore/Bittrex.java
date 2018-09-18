@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -18,7 +19,7 @@ public class Bittrex {
     private final MarketManager marketManager = new MarketManager(this);
     private double bitcoinPrice;
     private List<String> baseMarkets;
-    private Map<String, BigDecimal> balances;
+    private Map<String, BigDecimal> balances = new HashMap<>();
 
 
     public Bittrex(String key, String secret, long requestDelay, String... baseMarkets) {

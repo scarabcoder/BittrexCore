@@ -81,11 +81,16 @@ public class MarketManager {
                     float x = 0f;
 
 
+                    for(JsonElement balanceElement : balances) {
+                        JsonObject obj = balanceElement.getAsJsonObject();
+                        String currency = obj.get("Currency").getAsString();
+                        bittrex.updateBalance(currency, obj.get("Balance").getAsBigDecimal());
+                    }
 
                     for(JsonElement mElement : marketsArray) {
                         JsonObject marketData = mElement.getAsJsonObject();
                         if(!bittrex.getBaseMarkets().contains(marketData.get("MarketName").getAsString().split("-")[0])) continue;
-                        if(marketData.get("BaseVolume").getAsBigDecimal().compareTo(minimumVolume) < 0) continue;
+                        if(marketData.get("BaseVolume").getAsBigDecimal().compareTo(minimumVolume) < 0 || !(bittrex.getBalance(marketData.get("MarketName").getAsString().split("-")[1]).compareTo(new BigDecimal("0.0")) > 0)) continue;
                         Market market = getMarket(marketData.get("MarketName").getAsString());
                         if(market == null) {
                             market = Market.fromJson(marketData, bittrex);
@@ -109,11 +114,6 @@ public class MarketManager {
                         }
                     }
 
-                    for(JsonElement balanceElement : balances) {
-                        JsonObject obj = balanceElement.getAsJsonObject();
-                        String currency = obj.get("Currency").getAsString();
-                        bittrex.updateBalance(currency, obj.get("Balance").getAsBigDecimal());
-                    }
                     if(x > 0) {
                         Bittrex.LOGGER.info("Loaded " + markets.size() + " markets, with " + new DecimalFormat("#,###").format(markets.stream().mapToInt(market -> market.getTicks().size()).sum()) + " data points.");
                     }
