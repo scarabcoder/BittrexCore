@@ -90,7 +90,7 @@ public class MarketManager {
                     for(JsonElement mElement : marketsArray) {
                         JsonObject marketData = mElement.getAsJsonObject();
                         if(!bittrex.getBaseMarkets().contains(marketData.get("MarketName").getAsString().split("-")[0])) continue;
-                        if(marketData.get("BaseVolume").getAsBigDecimal().compareTo(minimumVolume) < 0 || !(bittrex.getBalance(marketData.get("MarketName").getAsString().split("-")[1]).compareTo(new BigDecimal("0.0")) > 0)) continue;
+                        if(marketData.get("BaseVolume").getAsBigDecimal().compareTo(minimumVolume) < 0 && !(bittrex.getBalance(marketData.get("MarketName").getAsString().split("-")[1]).compareTo(new BigDecimal("0.0")) > 0)) continue;
                         Market market = getMarket(marketData.get("MarketName").getAsString());
                         if(market == null) {
                             market = Market.fromJson(marketData, bittrex);

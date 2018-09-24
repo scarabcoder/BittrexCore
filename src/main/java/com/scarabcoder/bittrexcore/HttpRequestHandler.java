@@ -129,39 +129,40 @@ public class HttpRequestHandler {
 
         @Override
         public void run() {
-            while(true) {
-                if(stop)
-                    return;
-
-                if(queue.isEmpty())
-                    continue;
-
-                HttpRequest request = queue.get(0);
-
+            while(!stop) {
                 try {
-                    Long start = System.currentTimeMillis();
-                    Request req = request.request;
-                    HashMap<String, Object> headers = new HashMap<>(req.getHeaders());
-                    headers.put("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36");
-                    req = req.header(headers);
-                    Result<String, FuelError> response = req.responseString().getThird();
-                    JsonObject responseJson = PARSER.parse(response.get()).getAsJsonObject();
-                    averageResponseTime.add(System.currentTimeMillis() - start);
-                    if(averageResponseTime.size() > 100) averageResponseTime.remove(0);
-                    if(!responseJson.get("success").getAsBoolean()) {
-                        request.callback.onError(responseJson.get("message").getAsString());
-                    } else {
-                        request.callback.onSuccess(responseJson.get("result"));
+                    if (queue.isEmpty())
+                        continue;
+
+                    HttpRequest request = queue.get(0);
+
+                    try {
+                        Long start = System.currentTimeMillis();
+                        Request req = request.request;
+                        HashMap<String, Object> headers = new HashMap<>(req.getHeaders());
+                        headers.put("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36");
+                        req = req.header(headers);
+                        Result<String, FuelError> response = req.responseString().getThird();
+                        JsonObject responseJson = PARSER.parse(response.get()).getAsJsonObject();
+                        averageResponseTime.add(System.currentTimeMillis() - start);
+                        if (averageResponseTime.size() > 100) averageResponseTime.remove(0);
+                        if (!responseJson.get("success").getAsBoolean()) {
+                            request.callback.onError(responseJson.get("message").getAsString());
+                        } else {
+                            request.callback.onSuccess(responseJson.get("result"));
+                        }
+                    } catch (Exception e) {
+                        Bittrex.LOGGER.warn("An exception occurred when requesting data from Bittrex!");
+                        e.printStackTrace();
+                        request.callback.onError(e.getMessage());
                     }
-                } catch(Exception e) {
-                    Bittrex.LOGGER.warn("An exception occurred when requesting data from Bittrex!");
-                    e.printStackTrace();
-                    request.callback.onError(e.getMessage());
-                }
-                queue.remove(0);
-                try {
-                    Thread.sleep(requestDelay);
-                } catch (InterruptedException e) {
+                    queue.remove(0);
+                    try {
+                        Thread.sleep(requestDelay);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                } catch(Throwable e) {
                     e.printStackTrace();
                 }
 
